@@ -90,9 +90,6 @@ all_tweets = pd.DataFrame(all_tweets_list, columns=['root_user', 'follower',
                                                     'tweet','is_retweet',
                                                     'tweet_time'])
 
-
-all_tweets[all_tweets.follower == 'kearneymw']
-# The process above results in some duplicate tweets.
 # It's easiest just to handle them here:
 all_tweets = all_tweets.drop_duplicates
 
