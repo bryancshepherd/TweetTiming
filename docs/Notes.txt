@@ -1,0 +1,6 @@
+Possible extenstions/to-dos:
+Send alerts when followers are especially active
+
+Validation:
+See if retweet/like activity correlates with follower activity using
+historical data.
