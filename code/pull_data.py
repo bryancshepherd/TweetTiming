@@ -81,9 +81,9 @@ def process_statuses(statuses):
         status_list.append([me.screen_name, follower.screen_name,
                             status.text, is_retweet, status.created_at])
 
-    return status_list
+    return pd.DataFrame(status_list)
 
-def get_users_tweets(user_obj, lookback_length):
+def get_users_tweets(user_obj, lookback_length, rlc):
     '''
     Get a list of the relevant user's Twitter statues
 
@@ -96,7 +96,7 @@ def get_users_tweets(user_obj, lookback_length):
     lookback_start = datetime.datetime.today() - \
                      dateutil.relativedelta.relativedelta(days=lookback_length)
 
-    single_user_tweets_list = []
+    single_user_tweets_df = pd.DataFrame()
     last_tweet_date = datetime.datetime.now()
     last_tweet_id = None
     # This is a little confusing, but if the
@@ -106,8 +106,8 @@ def get_users_tweets(user_obj, lookback_length):
     while last_tweet_date > lookback_start:
 
         if rlc['utrem']<5:
-            time.sleep(calc_wait_time(rlc, 'ut'))
             rlc = rate_limit_check()
+            time.sleep(calc_wait_time(rlc, 'ut'))
 
         temp_statuses = api.user_timeline(user_obj.id,
                                           max_id=last_tweet_id,
@@ -122,9 +122,10 @@ def get_users_tweets(user_obj, lookback_length):
         print('Processing {0} tweets for {1}'.format(num_of_statuses,
                                                      user_obj.screen_name))
 
-    single_user_tweets_list.append(process_statuses(temp_statuses))
+        single_user_tweets_df = pd.concat([single_user_tweets_df,
+                                           process_statuses(temp_statuses)])
 
-    return single_user_tweets_list
+    return single_user_tweets_df, rlc
 
 
 # def get_followers(user_obj):
@@ -183,20 +184,21 @@ api = tweepy.API(auth)
 me = api.me()
 me.followers_count
 
-all_tweets_list = []
+all_tweets_df = pd.DataFrame()
 rlc = rate_limit_check()
 
 followers = api.followers(count=me.followers_count)
 
-for follower in followers[0:10]:
+for follower in followers:
 
-    all_tweets_list.append(get_users_tweets(follower))
+    data, rlc = get_users_tweets(follower, 14, rlc)
+    all_tweets_df = pd.concat([all_tweets_df, data])
 
 
 # Create a dataframe to hold the data
-all_tweets = pd.DataFrame(all_tweets_list, columns=['root_user', 'follower',
-                                                    'tweet','is_retweet',
-                                                    'tweet_time'])
+all_tweets_df.columns=['root_user', 'follower',
+                       'tweet','is_retweet',
+                       'tweet_time']
 
 # It's easiest just to handle them here:
-all_tweets = all_tweets.drop_duplicates
+# all_tweets_df = all_tweets_df.drop_duplicates
