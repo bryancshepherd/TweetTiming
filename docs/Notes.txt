@@ -1,5 +1,6 @@
 Possible extenstions/to-dos:
 Send alerts when followers are especially active
+Alexa twitter skill that allows you to check number of recently active followers
 
 Validation:
 See if retweet/like activity correlates with follower activity using
