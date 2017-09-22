@@ -172,6 +172,11 @@ def get_users_tweets(user_obj,
         single_user_tweets_df = pd.concat([single_user_tweets_df,
                                            process_statuses(temp_statuses)])
 
+    # The process gets tweets that are older
+    # than the target date for some followers.
+    # Drop those here.
+    single_user_tweets_df.iloc[:, 4] > lookback_start
+
     return single_user_tweets_df, rlc
 
 def assign_numeric_day(x):
@@ -347,14 +352,14 @@ sns.set()
 # Draw a heatmap with the numeric values in each cell
 df_to_plot = prep_for_plotting(all_tweets_df_by_hour, 'follower')
 f, ax = plt.subplots(figsize=(9, 6))
-sns.heatmap(df_to_plot, annot=True, fmt="d", linewidths=.5, ax=ax)
+sns.heatmap(df_to_plot, linewidths=.5, ax=ax)
 
 df_to_plot = prep_for_plotting(all_tweets_df_by_hour, 'follower')
 ax = sns.heatmap(df_to_plot, linewidths=.5)
 
 df_to_plot = prep_for_plotting(users_by_hour, 'follower')
-ax = sns.heatmap(df_to_plot, linewidths=.5, square=True)
+ax = sns.heatmap(df_to_plot, linewidths=.5, square=False)
 
 df_to_plot = prep_for_plotting(retweets_by_hour, 'is_retweet')
-ax = sns.heatmap(df_to_plot, linewidths=.5, square=True)
+ax = sns.heatmap(df_to_plot, linewidths=.5, square=False)
 
